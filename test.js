@@ -222,3 +222,120 @@
 //         });
 //     }
 // };
+
+
+
+
+// search filtering implementation
+// export const getEvents = async (req, res) => {
+//     try {
+//         const query = {};
+//         let sortOptions = {};
+
+//         // --- 1. Filtering Logic ---
+
+//         // Filter by title (partial, case-insensitive match)
+//         if (req.query.title) {
+//             query.title = { $regex: req.query.title, $options: 'i' };
+//         }
+
+//         // Filter by venue (partial, case-insensitive match)
+//         if (req.query.venue) {
+//             query.venue = { $regex: req.query.venue, $options: 'i' };
+//         }
+
+//         // Filter by rate (exact match, case-insensitive)
+//         if (req.query.rate) {
+//             // If you only expect "free" or specific rates, consider an exact match
+//             query.rate = { $regex: req.query.rate, $options: 'i' };
+//         }
+
+//         // Filter by type (exact match, case-insensitive, based on enum values)
+//         if (req.query.type) {
+//             // For enum types, exact match is usually preferred, but case-insensitive can be added
+//             query.type = { $regex: req.query.type, $options: 'i' };
+//         }
+
+//         // Date Filtering
+//         if (req.query.date) {
+//             // Find events on a specific day
+//             const specificDate = new Date(req.query.date);
+//             if (!isNaN(specificDate.getTime())) { // Validate if date is valid
+//                 const startOfDay = new Date(specificDate.getFullYear(), specificDate.getMonth(), specificDate.getDate());
+//                 const endOfDay = new Date(specificDate.getFullYear(), specificDate.getMonth(), specificDate.getDate() + 1, 0, 0, 0, -1); // End of the day
+
+//                 query.date = {
+//                     $gte: startOfDay,
+//                     $lte: endOfDay
+//                 };
+//             } else {
+//                 return res.status(400).json({ message: 'Invalid date format. Use YYYY-MM-DD.' });
+//             }
+//         }
+//         // You can add `dateFrom` and `dateTo` for range queries if needed
+//         if (req.query.dateFrom) {
+//             const dateFrom = new Date(req.query.dateFrom);
+//             if (!isNaN(dateFrom.getTime())) {
+//                 query.date = { ...query.date, $gte: dateFrom };
+//             } else {
+//                 return res.status(400).json({ message: 'Invalid dateFrom format. Use YYYY-MM-DD.' });
+//             }
+//         }
+//         if (req.query.dateTo) {
+//             const dateTo = new Date(req.query.dateTo);
+//             if (!isNaN(dateTo.getTime())) {
+//                  query.date = { ...query.date, $lte: dateTo };
+//             } else {
+//                 return res.status(400).json({ message: 'Invalid dateTo format. Use YYYY-MM-DD.' });
+//             }
+//         }
+
+//         // --- 2. Sorting Logic ---
+
+//         if (req.query.sort) {
+//             // Expects format like "date:asc" or "title:desc"
+//             const [field, order] = req.query.sort.split(':');
+//             if (['title', 'date', 'venue', 'rate', 'type', 'createdAt'].includes(field)) { // Ensure field is allowed for sorting
+//                  sortOptions[field] = order === 'desc' ? -1 : 1;
+//             } else {
+//                 return res.status(400).json({ message: `Invalid sort field: ${field}` });
+//             }
+//         } else {
+//             // Default sort: by date ascending (upcoming events first)
+//             sortOptions.date = 1;
+//         }
+
+//         // --- 3. Pagination Logic ---
+
+//         const page = parseInt(req.query.page) || 1;
+//         const limit = parseInt(req.query.limit) || 10;
+//         const skip = (page - 1) * limit;
+
+//         // --- 4. Execute Query ---
+
+//         const events = await Events.find(query) // Apply filters
+//                                    .sort(sortOptions) // Apply sorting
+//                                    .skip(skip)         // Apply pagination skip
+//                                    .limit(limit);      // Apply pagination limit
+
+//         const totalEvents = await Events.countDocuments(query); // Get total count matching filters
+
+//         // --- 5. Send Response ---
+
+//         res.status(200).json({
+//             success: true,
+//             count: events.length,
+//             total: totalEvents,
+//             page: page,
+//             pages: Math.ceil(totalEvents / limit),
+//             data: events
+//         });
+
+//     } catch (error) {
+//         console.error('Error fetching events with filters:', error);
+//         res.status(500).json({
+//             message: 'Server Error: Failed to retrieve events. Please try again later.',
+//             error: error.message
+//         });
+//     }
+// };
